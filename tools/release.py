@@ -143,16 +143,54 @@ def verify_hosted_download(url, data, *, sink=None):
             raise ValueError('公开地址返回的文件与当前下载包不一致。请先上传正确的 ZIP 文件。')
 
 
+CLOUD_SHARE_PROVIDERS = {
+    'pan.quark.cn': ('夸克网盘', ('/s/',)),
+    'pan.baidu.com': ('百度网盘', ('/s/', '/share/init', '/share/link')),
+    'pan.xunlei.com': ('迅雷云盘', ('/s/',)),
+    'yun.139.com': ('中国移动云盘', ('/shareweb/', '/w/i/')),
+    'caiyun.139.com': ('中国移动云盘', ('/m/i', '/shareweb/')),
+}
+
+
+def cloud_share(version):
+    config = WEB / 'cloud-download.json'
+    if not config.is_file():
+        return None
+    try:
+        entry = json.loads(config.read_text(encoding='utf-8'))
+        if not isinstance(entry, dict) or entry.get('version') != version:
+            return None
+        url = entry.get('url')
+        code = entry.get('accessCode', '')
+        if not isinstance(url, str) or re.search(r'[\x00-\x20\x7f]', url):
+            raise ValueError('Invalid share URL')
+        if not isinstance(code, str) or (code and not re.fullmatch(r'[A-Za-z0-9]{4,8}', code)):
+            raise ValueError('Invalid share code')
+        parsed = urlsplit(url)
+        provider = CLOUD_SHARE_PROVIDERS.get(parsed.netloc)
+        if parsed.scheme != 'https' or not provider or not parsed.path.startswith(provider[1]):
+            raise ValueError('Invalid provider or share path')
+        return {'provider': provider[0], 'url': url, 'accessCode': code}
+    except (OSError, ValueError):
+        print('::warning::Ignoring invalid cloud download configuration.', flush=True)
+        return None
+
+
 def render(data, url, out, *, mirror_url=None, domestic_url=None):
     out.mkdir(parents=True, exist_ok=True)
     primary = domestic_url or url
     fields = {'VERSION': data['version'], 'DOWNLOAD_URL': primary, 'FILENAME': data['filename'], 'PLATFORM': data['platform'], 'SIZE': format_size(data['sizeBytes']), 'SHA256': data['sha256']}
-    fields.update(FAST_ENABLED='yes' if mirror_url else 'no',
+    share = cloud_share(data['version'])
+    fields.update(CLOUD_URL=share['url'] if share else '#download',
+                  CLOUD_LABEL=share['provider'] + '下载' if share else '',
+                  CLOUD_HIDDEN='' if share else ' hidden',
+                  CLOUD_CODE=share['accessCode'] if share else '',
+                  CLOUD_CODE_HIDDEN='' if share and share['accessCode'] else ' hidden',
                   DOWNLOAD_TOP='国内线路下载' if domestic_url else '下载 Windows 版',
                   DOWNLOAD_BOTTOM='国内线路下载' if domestic_url else '下载便携包')
     html = re.sub(r'\{\{([A-Z0-9_]+)\}\}', lambda m: escape(str(fields[m[1]]), quote=True), (WEB/'index.html').read_text(encoding='utf-8'))
     (out/'index.html').write_text(html, encoding='utf-8')
-    for name in ('style.css','preview.js','fast-download.js','_headers','404.html'):
+    for name in ('style.css','preview.js','_headers','404.html'):
         shutil.copyfile(WEB/name, out/name)
     shutil.copytree(WEB/'assets', out/'assets', dirs_exist_ok=True)
     manifest = {**data, 'url': primary}
@@ -160,6 +198,8 @@ def render(data, url, out, *, mirror_url=None, domestic_url=None):
         manifest['releaseUrl'] = url
     if mirror_url:
         manifest['mirrorUrl'] = mirror_url
+    if share:
+        manifest['cloudShare'] = share
     write_json(out/'release.json', manifest)
 
 

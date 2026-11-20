@@ -9,7 +9,6 @@
   <link rel="icon" href="assets/icon.png" type="image/png">
   <link rel="stylesheet" href="style.css">
   <script src="preview.js" defer></script>
-  <script src="fast-download.js" type="module"></script>
 </head>
 <body id="top">
   <a class="skip" href="#main">跳到正文</a>
@@ -24,7 +23,7 @@
         <h1 id="intro-title">恶魔叮<span>.</span></h1>
         <p class="hero-line">桌面上住了个小恶魔。</p>
         <p class="intro-copy">闲下来会沿屏幕走一段，停下来做个小动作。点点它，你会收到一个动作和一张表情。</p>
-        <div class="hero-actions"><a class="button" href="{{DOWNLOAD_URL}}" download="{{FILENAME}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>{{DOWNLOAD_TOP}}</a><a id="fast-jump" class="fast-link" href="#fast-download" hidden>分段加速下载</a><a class="guide-link" href="#guide">怎么用 <span aria-hidden="true">↓</span></a></div>
+        <div class="hero-actions"><a class="button" href="{{DOWNLOAD_URL}}" download="{{FILENAME}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>{{DOWNLOAD_TOP}}</a><a class="cloud-link" href="{{CLOUD_URL}}"{{CLOUD_HIDDEN}}>{{CLOUD_LABEL}}</a><a class="guide-link" href="#guide">怎么用 <span aria-hidden="true">↓</span></a></div>
         <p class="file-meta">便携 ZIP <span>·</span> {{PLATFORM}} <span>·</span> {{SIZE}}</p>
       </div>
       <div class="showcase" aria-label="恶魔叮互动预览">
@@ -56,17 +55,8 @@
     </section>
     <section id="download" class="download-panel" aria-labelledby="download-title">
       <div><p class="eyebrow"><span>03</span> / DOWNLOAD</p><h2 id="download-title">带恶魔叮回家</h2><p>当前版 {{VERSION}} <span>·</span> {{PLATFORM}} <span>·</span> {{SIZE}}</p></div>
-      <div class="download-actions"><a class="button" href="{{DOWNLOAD_URL}}" download="{{FILENAME}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>{{DOWNLOAD_BOTTOM}}</a></div>
-      <div class="fast-download" id="fast-download" data-enabled="{{FAST_ENABLED}}" hidden>
-        <div class="fast-actions">
-          <button type="button" id="fast-start" class="fast-control">分段加速下载</button>
-          <button type="button" id="fast-cancel" class="fast-link" hidden>取消</button>
-          <a id="fast-save" class="fast-control" hidden>保存 ZIP</a>
-        </div>
-        <progress id="fast-meter" max="1" value="0" aria-label="下载进度" aria-describedby="fast-count" hidden></progress>
-        <p id="fast-status" role="status">同时下载 4 段，完成校验后保存 ZIP。</p>
-        <span id="fast-count" class="fast-count"></span>
-      </div>
+      <div class="download-actions"><a class="button" href="{{DOWNLOAD_URL}}" download="{{FILENAME}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>{{DOWNLOAD_BOTTOM}}</a><a class="cloud-link" href="{{CLOUD_URL}}"{{CLOUD_HIDDEN}}>{{CLOUD_LABEL}}</a></div>
+      <p class="cloud-note"{{CLOUD_HIDDEN}}>网盘下载会打开分享页。<span{{CLOUD_CODE_HIDDEN}}>提取码：<code>{{CLOUD_CODE}}</code></span></p>
       <details class="verify"><summary>查看文件校验值</summary><p><strong>SHA-256</strong><code>{{SHA256}}</code></p></details>
     </section>
   </main>
