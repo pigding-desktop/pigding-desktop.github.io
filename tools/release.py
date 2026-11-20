@@ -125,7 +125,7 @@ def https_url(value):
     return value
 
 
-def verify_hosted_download(url, data):
+def verify_hosted_download(url, data, *, sink=None):
     https_url(url)
     print('正在校验公开下载文件的大小与 SHA-256……', flush=True)
     with urlopen(Request(url, headers={'Accept-Encoding':'identity', 'User-Agent':'PIGDING-release-verifier/1'}), timeout=30) as response:
@@ -137,6 +137,8 @@ def verify_hosted_download(url, data):
             if size > data['sizeBytes']:
                 break
             digest.update(block)
+            if sink is not None:
+                sink.write(block)
         if response.status != 200 or size != data['sizeBytes'] or digest.hexdigest() != data['sha256']:
             raise ValueError('公开地址返回的文件与当前下载包不一致。请先上传正确的 ZIP 文件。')
 

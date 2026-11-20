@@ -3,6 +3,8 @@ from argparse import ArgumentParser
 import json
 from pathlib import Path
 import re
+import shutil
+from tempfile import TemporaryDirectory
 import zipfile
 
 import release
@@ -41,8 +43,14 @@ def build(repository, release_json, output):
     data, url = current_download(json.loads(release_json.read_text(encoding='utf-8')), repository)
     if output.exists() and (not output.is_dir() or any(output.iterdir())):
         raise ValueError('站点输出路径必须为空，避免把历史文件发布到首页。')
-    release.verify_hosted_download(url, data)
-    release.render(data, url, output)
+    with TemporaryDirectory() as temp:
+        archive = Path(temp) / data['filename']
+        with archive.open('wb') as sink:
+            release.verify_hosted_download(url, data, sink=sink)
+        release.render(data, url, output)
+        downloads = output / 'downloads'
+        downloads.mkdir()
+        shutil.move(archive, downloads / archive.name)
     (output / '_headers').unlink()
     (output / '.nojekyll').touch()
     print(f'已生成 GitHub Pages 网站：{output}', flush=True)
