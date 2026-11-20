@@ -33,11 +33,11 @@ jobs:
         run: gh api "repos/$GITHUB_REPOSITORY/releases/latest" > "$RUNNER_TEMP/active-release.json"
       - name: Verify current ZIP and build the site with download mirrors
         env:
-          PIGDING_OSS_ORIGIN: ${{ vars.PIGDING_OSS_ORIGIN }}
+          PIGDING_COS_ORIGIN: ${{ vars.PIGDING_COS_ORIGIN }}
         run: |
           python3 tools/github_site.py build --repository "$GITHUB_REPOSITORY" \
             --release-json "$RUNNER_TEMP/active-release.json" --output _site \
-            --oss-origin "$PIGDING_OSS_ORIGIN"
+            --cos-origin "$PIGDING_COS_ORIGIN"
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: _site
