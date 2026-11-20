@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#110d14">
+  <meta name="description" content="恶魔叮 PIGDING 是一只会在 Windows 桌面上走动、回应点击和换肤的桌宠。查看使用说明，下载当前版本。">
+  <title>PIGDING 恶魔叮 · Windows 桌宠</title>
+  <link rel="icon" href="assets/icon.png" type="image/png">
+  <link rel="stylesheet" href="style.css">
+  <script src="preview.js" defer></script>
+</head>
+<body id="top">
+  <a class="skip" href="#main">跳到正文</a>
+  <header class="header wrap">
+    <a href="#top" class="brand" aria-label="PIGDING 首页"><img src="assets/icon.png" width="34" height="34" alt="">PIGDING<span>.</span></a>
+    <nav aria-label="站内导航"><a href="#features">桌宠功能</a><a href="#guide">使用说明</a><a class="nav-download" href="#download">下载 <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main id="main" class="wrap">
+    <section class="hero" aria-labelledby="intro-title">
+      <div class="intro">
+        <p class="eyebrow"><span class="dot"></span> WINDOWS 桌宠 <span class="eyeline"></span> 当前版 {{VERSION}}</p>
+        <h1 id="intro-title">恶魔叮<span>.</span></h1>
+        <p class="hero-line">桌面上住了个小恶魔。</p>
+        <p class="intro-copy">闲下来会沿屏幕走一段，停下来做个小动作。点点它，你会收到一个动作和一张表情。</p>
+        <div class="hero-actions"><a class="button" href="{{DOWNLOAD_URL}}" download="{{FILENAME}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>下载 Windows 版</a><a class="guide-link" href="#guide">怎么用 <span aria-hidden="true">↓</span></a></div>
+        <p class="file-meta">便携 ZIP <span>·</span> {{PLATFORM}} <span>·</span> {{SIZE}}</p>
+      </div>
+      <div class="showcase" aria-label="恶魔叮互动预览">
+        <div class="showcase-top"><span><i></i> 互动预览</span><span class="mono">PIGDING / 01</span></div>
+        <div class="stage">
+          <span class="orbit orbit-outer" aria-hidden="true"></span><span class="orbit orbit-inner" aria-hidden="true"></span><span class="spark one" aria-hidden="true">✦</span><span class="spark two" aria-hidden="true">+</span><span class="spark three" aria-hidden="true">✧</span>
+          <button class="pet" type="button" aria-label="点击恶魔叮，看看它的表情"><img id="pet-image" src="assets/demon-happy.webp" alt="普通色恶魔叮张开翅膀" width="810" height="543" fetchpriority="high"></button>
+          <p class="reaction" id="reaction" role="status">点一下，看它的表情</p>
+        </div>
+        <div class="showcase-bottom"><span class="skin-label">皮肤预览</span><div class="skin-selector" role="group" aria-label="选择预览皮肤"><button type="button" aria-pressed="true" data-skin="demon"><i></i>普通</button><button type="button" aria-pressed="false" data-skin="demon-shiny"><i></i>异色</button></div></div>
+      </div>
+    </section>
+    <section id="features" class="section" aria-labelledby="features-title">
+      <div class="section-heading"><p class="eyebrow"><span>01</span> / FEATURES</p><h2 id="features-title">它会做什么</h2></div>
+      <div class="feature-grid">
+        <article class="card"><span class="symbol"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18M7 8l-4 4 4 4m10-8 4 4-4 4"/></svg></span><h3>自己逛桌面</h3><p>待机时会随机向左或向右走，走动时身体会伸缩变形。走完会停一会儿，有时还会做个小动作。</p></article>
+        <article class="card"><span class="symbol"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20S4 15 4 9.5A4 4 0 0 1 12 8a4 4 0 0 1 8 1.5C20 15 12 20 12 20Z"/></svg></span><h3>点它有回应</h3><p>轻点随机播放八种互动之一，并弹出对应表情。长按可以摸摸，按住移动就能把它拖到别处。</p></article>
+        <article class="card"><span class="symbol"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-1.9L12 3ZM19 16v5m-2.5-2.5h5"/></svg></span><h3>两款皮肤随时换</h3><p>普通色、粉色异色都在同一个程序里。右键菜单还能调大小、帧率、置顶、随机走动和表情开关。</p></article>
+      </div>
+    </section>
+    <section id="guide" class="section" aria-labelledby="guide-title">
+      <div class="section-heading"><p class="eyebrow"><span>02</span> / QUICK START</p><h2 id="guide-title">三步，让它住进桌面</h2></div>
+      <ol class="steps">
+        <li><span>01</span><div><h3>下载便携包</h3><p>下载 Windows x64 的 ZIP 文件。</p></div></li>
+        <li><span>02</span><div><h3>解压整个文件夹</h3><p>保留程序旁的 <code>resources</code>、<code>locales</code> 和 DLL 文件。</p></div></li>
+        <li><span>03</span><div><h3>双击 <code>PIGDING.exe</code></h3><p>启动后，右键宠物或托盘里的图标打开设置。</p></div></li>
+      </ol>
+      <div class="guide-notes"><div><strong>显示 / 隐藏</strong><span><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>D</kbd></span></div><div><strong>点不到宠物？</strong><span>从托盘右键取消「全部鼠标穿透」。</span></div><div><strong>更新版本</strong><span>先退出旧版，再把新版解压到新的文件夹后启动。</span></div></div>
+    </section>
+    <section id="download" class="download-panel" aria-labelledby="download-title">
+      <div><p class="eyebrow"><span>03</span> / DOWNLOAD</p><h2 id="download-title">带恶魔叮回家</h2><p>当前版 {{VERSION}} <span>·</span> {{PLATFORM}} <span>·</span> {{SIZE}}</p></div>
+      <a class="button" href="{{DOWNLOAD_URL}}" download="{{FILENAME}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>下载便携包</a>
+      <details class="verify"><summary>查看文件校验值</summary><p><strong>SHA-256</strong><code>{{SHA256}}</code></p></details>
+    </section>
+  </main>
+  <footer class="footer wrap"><a href="#top" class="brand"><img src="assets/icon.png" width="28" height="28" alt="">PIGDING<span>.</span></a><span>恶魔叮 · Windows 桌宠</span><a href="#top">回到顶部 ↑</a></footer>
+</body>
+</html>
