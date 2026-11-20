@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import re
 import shutil
+import subprocess
 from tempfile import TemporaryDirectory
 import zipfile
 
@@ -13,6 +14,9 @@ import release
 REPO = re.compile(r'[A-Za-z0-9-]+/[A-Za-z0-9_.-]+')
 STABLE_TAG = re.compile(r'v(\d+\.\d+\.\d+)')
 HASH = re.compile(r'sha256:([a-f0-9]{64})')
+OSS_ORIGIN = re.compile(
+    r'https://[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.oss-cn-'
+    r'(?:hangzhou|shanghai|beijing|shenzhen)\.aliyuncs\.com/?')
 
 
 def current_download(details, repo):
@@ -39,7 +43,32 @@ def current_download(details, repo):
             'sizeBytes': size, 'sha256': digest[1]}, url
 
 
-def build(repository, release_json, output):
+def verified_domestic_url(origin, data, temp):
+    origin = origin.strip()
+    if not origin:
+        return None
+    if not OSS_ORIGIN.fullmatch(origin):
+        print('::warning::Ignoring invalid mainland OSS origin. GitHub download remains active.', flush=True)
+        return None
+    url = f'{origin.rstrip("/")}/downloads/{data["filename"]}'
+    candidate = temp / 'domestic.zip'
+    try:
+        check = subprocess.run(
+            ['curl', '--disable', '--fail', '--silent', '--connect-timeout', '10', '--max-time', '240',
+             '--max-filesize', str(data['sizeBytes']), '--output', str(candidate),
+             '--write-out', '%{http_code}', url],
+            capture_output=True, text=True, timeout=245)
+        if (check.returncode == 0 and check.stdout == '200'
+                and candidate.stat().st_size == data['sizeBytes']
+                and release.sha(candidate) == data['sha256']):
+            return url
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+    print('::warning::Could not verify the current ZIP on OSS. GitHub download remains active.', flush=True)
+    return None
+
+
+def build(repository, release_json, output, *, oss_origin=''):
     data, url = current_download(json.loads(release_json.read_text(encoding='utf-8')), repository)
     if output.exists() and (not output.is_dir() or any(output.iterdir())):
         raise ValueError('站点输出路径必须为空，避免把历史文件发布到首页。')
@@ -48,7 +77,8 @@ def build(repository, release_json, output):
         with archive.open('wb') as sink:
             release.verify_hosted_download(url, data, sink=sink)
         mirror_url = f'downloads/{archive.name}'
-        release.render(data, url, output, mirror_url=mirror_url)
+        domestic_url = verified_domestic_url(oss_origin, data, Path(temp))
+        release.render(data, url, output, mirror_url=mirror_url, domestic_url=domestic_url)
         downloads = output / 'downloads'
         downloads.mkdir()
         shutil.move(archive, downloads / archive.name)
@@ -82,13 +112,14 @@ def main():
     make.add_argument('--repository', required=True)
     make.add_argument('--release-json', type=Path, required=True)
     make.add_argument('--output', type=Path, required=True)
+    make.add_argument('--oss-origin', default='')
     sub.add_parser('source')
     options = parser.parse_args()
     try:
         if options.command == 'source':
             package_source()
         else:
-            build(options.repository, options.release_json, options.output)
+            build(options.repository, options.release_json, options.output, oss_origin=options.oss_origin)
     except (KeyError, OSError, ValueError) as error:
         parser.exit(1, f'失败：{error}\n')
 
