@@ -147,14 +147,12 @@ def render(data, url, out, *, mirror_url=None, domestic_url=None):
     out.mkdir(parents=True, exist_ok=True)
     primary = domestic_url or url
     fields = {'VERSION': data['version'], 'DOWNLOAD_URL': primary, 'FILENAME': data['filename'], 'PLATFORM': data['platform'], 'SIZE': format_size(data['sizeBytes']), 'SHA256': data['sha256']}
-    fields.update(MIRROR_URL=mirror_url or '#download', MIRROR_HIDDEN='' if mirror_url else ' hidden',
-                  RELEASES_URL=url if domestic_url else '#download',
-                  RELEASES_HIDDEN='' if domestic_url else ' hidden',
+    fields.update(FAST_ENABLED='yes' if mirror_url else 'no',
                   DOWNLOAD_TOP='国内线路下载' if domestic_url else '下载 Windows 版',
                   DOWNLOAD_BOTTOM='国内线路下载' if domestic_url else '下载便携包')
     html = re.sub(r'\{\{([A-Z0-9_]+)\}\}', lambda m: escape(str(fields[m[1]]), quote=True), (WEB/'index.html').read_text(encoding='utf-8'))
     (out/'index.html').write_text(html, encoding='utf-8')
-    for name in ('style.css','preview.js','_headers','404.html'):
+    for name in ('style.css','preview.js','fast-download.js','_headers','404.html'):
         shutil.copyfile(WEB/name, out/name)
     shutil.copytree(WEB/'assets', out/'assets', dirs_exist_ok=True)
     manifest = {**data, 'url': primary}
