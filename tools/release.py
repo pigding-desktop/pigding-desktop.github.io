@@ -152,43 +152,65 @@ CLOUD_SHARE_PROVIDERS = {
 }
 
 
-def cloud_share(version):
+def cloud_shares(version):
     config = WEB / 'cloud-download.json'
     if not config.is_file():
-        return None
+        return []
+    warning = '::warning::Ignoring invalid cloud download configuration.'
     try:
         entry = json.loads(config.read_text(encoding='utf-8'))
-        if not isinstance(entry, dict) or entry.get('version') != version:
-            return None
-        url = entry.get('url')
-        code = entry.get('accessCode', '')
-        if not isinstance(url, str) or re.search(r'[\x00-\x20\x7f]', url):
-            raise ValueError('Invalid share URL')
-        if not isinstance(code, str) or (code and not re.fullmatch(r'[A-Za-z0-9]{4,8}', code)):
-            raise ValueError('Invalid share code')
-        parsed = urlsplit(url)
-        provider = CLOUD_SHARE_PROVIDERS.get(parsed.netloc)
-        if parsed.scheme != 'https' or not provider or not parsed.path.startswith(provider[1]):
-            raise ValueError('Invalid provider or share path')
-        return {'provider': provider[0], 'url': url, 'accessCode': code}
     except (OSError, ValueError):
-        print('::warning::Ignoring invalid cloud download configuration.', flush=True)
-        return None
+        print(warning, flush=True)
+        return []
+    if not isinstance(entry, dict) or entry.get('version') != version:
+        return []
+    links = entry.get('links', [])
+    if not isinstance(links, list):
+        print(warning, flush=True)
+        return []
+    shares = {}
+    for link in links:
+        try:
+            if not isinstance(link, dict):
+                raise ValueError('Invalid share entry')
+            url = link.get('url')
+            code = link.get('accessCode', '')
+            if not isinstance(url, str) or re.search(r'[\x00-\x20\x7f]', url):
+                raise ValueError('Invalid share URL')
+            if not isinstance(code, str) or (code and not re.fullmatch(r'[A-Za-z0-9]{4,8}', code)):
+                raise ValueError('Invalid share code')
+            parsed = urlsplit(url)
+            provider = CLOUD_SHARE_PROVIDERS.get(parsed.netloc)
+            if parsed.scheme != 'https' or not provider or not parsed.path.startswith(provider[1]):
+                raise ValueError('Invalid provider or share path')
+            shares.setdefault(provider[0], {'provider': provider[0], 'url': url, 'accessCode': code})
+        except ValueError:
+            print(warning, flush=True)
+    return list(shares.values())
+
+
+def cloud_links_html(shares):
+    links = []
+    for share in shares:
+        code = share['accessCode']
+        note = f'<span>提取码：<code>{escape(code)}</code></span>' if code else ''
+        links.append(f'<li><a class="cloud-link" href="{escape(share["url"], quote=True)}">'
+                     f'{escape(share["provider"])}</a>{note}</li>')
+    return '\n'.join(links)
 
 
 def render(data, url, out, *, mirror_url=None, domestic_url=None):
     out.mkdir(parents=True, exist_ok=True)
     primary = domestic_url or url
     fields = {'VERSION': data['version'], 'DOWNLOAD_URL': primary, 'FILENAME': data['filename'], 'PLATFORM': data['platform'], 'SIZE': format_size(data['sizeBytes']), 'SHA256': data['sha256']}
-    share = cloud_share(data['version'])
-    fields.update(CLOUD_URL=share['url'] if share else '#download',
-                  CLOUD_LABEL=share['provider'] + '下载' if share else '',
-                  CLOUD_HIDDEN='' if share else ' hidden',
-                  CLOUD_CODE=share['accessCode'] if share else '',
-                  CLOUD_CODE_HIDDEN='' if share and share['accessCode'] else ' hidden',
+    shares = cloud_shares(data['version'])
+    cloud_links = cloud_links_html(shares)
+    fields.update(CLOUD_HIDDEN='' if shares else ' hidden',
                   DOWNLOAD_TOP='国内线路下载' if domestic_url else '下载 Windows 版',
                   DOWNLOAD_BOTTOM='国内线路下载' if domestic_url else '下载便携包')
-    html = re.sub(r'\{\{([A-Z0-9_]+)\}\}', lambda m: escape(str(fields[m[1]]), quote=True), (WEB/'index.html').read_text(encoding='utf-8'))
+    html = re.sub(r'\{\{([A-Z0-9_]+)\}\}',
+                  lambda m: cloud_links if m[1] == 'CLOUD_LINKS' else escape(str(fields[m[1]]), quote=True),
+                  (WEB/'index.html').read_text(encoding='utf-8'))
     (out/'index.html').write_text(html, encoding='utf-8')
     for name in ('style.css','preview.js','_headers','404.html'):
         shutil.copyfile(WEB/name, out/name)
@@ -198,8 +220,8 @@ def render(data, url, out, *, mirror_url=None, domestic_url=None):
         manifest['releaseUrl'] = url
     if mirror_url:
         manifest['mirrorUrl'] = mirror_url
-    if share:
-        manifest['cloudShare'] = share
+    if shares:
+        manifest['cloudShares'] = shares
     write_json(out/'release.json', manifest)
 
 
