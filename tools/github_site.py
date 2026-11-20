@@ -47,7 +47,8 @@ def build(repository, release_json, output):
         archive = Path(temp) / data['filename']
         with archive.open('wb') as sink:
             release.verify_hosted_download(url, data, sink=sink)
-        release.render(data, url, output)
+        mirror_url = f'downloads/{archive.name}'
+        release.render(data, url, output, mirror_url=mirror_url)
         downloads = output / 'downloads'
         downloads.mkdir()
         shutil.move(archive, downloads / archive.name)

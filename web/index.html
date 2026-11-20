@@ -23,7 +23,7 @@
         <h1 id="intro-title">恶魔叮<span>.</span></h1>
         <p class="hero-line">桌面上住了个小恶魔。</p>
         <p class="intro-copy">闲下来会沿屏幕走一段，停下来做个小动作。点点它，你会收到一个动作和一张表情。</p>
-        <div class="hero-actions"><a class="button" href="{{DOWNLOAD_URL}}" download="{{FILENAME}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>下载 Windows 版</a><a class="guide-link" href="#guide">怎么用 <span aria-hidden="true">↓</span></a></div>
+        <div class="hero-actions"><a class="button" href="{{DOWNLOAD_URL}}" download="{{FILENAME}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>下载 Windows 版</a><a class="mirror-link" href="{{MIRROR_URL}}"{{MIRROR_HIDDEN}}>本站备用下载</a><a class="guide-link" href="#guide">怎么用 <span aria-hidden="true">↓</span></a></div>
         <p class="file-meta">便携 ZIP <span>·</span> {{PLATFORM}} <span>·</span> {{SIZE}}</p>
       </div>
       <div class="showcase" aria-label="恶魔叮互动预览">
@@ -55,7 +55,7 @@
     </section>
     <section id="download" class="download-panel" aria-labelledby="download-title">
       <div><p class="eyebrow"><span>03</span> / DOWNLOAD</p><h2 id="download-title">带恶魔叮回家</h2><p>当前版 {{VERSION}} <span>·</span> {{PLATFORM}} <span>·</span> {{SIZE}}</p></div>
-      <a class="button" href="{{DOWNLOAD_URL}}" download="{{FILENAME}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>下载便携包</a>
+      <div class="download-actions"><a class="button" href="{{DOWNLOAD_URL}}" download="{{FILENAME}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>下载便携包</a><a class="mirror-link" href="{{MIRROR_URL}}"{{MIRROR_HIDDEN}}>本站备用下载</a></div>
       <details class="verify"><summary>查看文件校验值</summary><p><strong>SHA-256</strong><code>{{SHA256}}</code></p></details>
     </section>
   </main>
