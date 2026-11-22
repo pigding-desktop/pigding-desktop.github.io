@@ -19,6 +19,8 @@ WEB = ROOT / 'web'
 STORE = ROOT / 'release'
 DIST = ROOT / 'dist'
 VERSION = re.compile(r'\d+\.\d+\.\d+(?:-[A-Za-z0-9]+(?:[.-][A-Za-z0-9]+)*)?')
+DOCK_VERSION = (1, 7, 11)
+VOICE_PACK_FILENAMES = tuple(f'voice-{name}.pigding-extension.json' for name in ('rough', 'lilting', 'normal'))
 RUNTIME = {'.dll', '.pak', '.bin', '.dat'}
 REQUIRED = {'resources/app.asar', 'locales/en-US.pak', 'ffmpeg.dll', 'icudtl.dat', 'resources.pak', 'LICENSE', 'LICENSES.chromium.html'}
 
@@ -66,6 +68,21 @@ def executable(directory):
     raise FileNotFoundError('缺少 PIGDING.exe 或恶魔叮.exe。')
 
 
+def has_voice_dock(version):
+    return tuple(map(int, version.split('-', 1)[0].split('.'))) >= DOCK_VERSION
+
+
+def voice_pack_files(directory, version):
+    if not has_voice_dock(version):
+        return {}
+    files = {f'resources/voice-packs/{name}': directory / 'resources' / 'voice-packs' / name
+             for name in VOICE_PACK_FILENAMES}
+    missing = [name for name, file in files.items() if not file.is_file()]
+    if missing:
+        raise ValueError('缺少互动语音包：' + ', '.join(missing))
+    return files
+
+
 def prepare(directory):
     directory = directory.resolve(strict=True)
     exe = executable(directory)
@@ -73,6 +90,7 @@ def prepare(directory):
     files = {f.name: f for f in directory.iterdir() if f.is_file() and (f.suffix.lower() in RUNTIME or f.name in {'LICENSE','LICENSES.chromium.html','vk_swiftshader_icd.json'})}
     files['PIGDING.exe'] = exe
     files['resources/app.asar'] = directory / 'resources/app.asar'
+    files.update(voice_pack_files(directory, version))
     for locale in sorted((directory / 'locales').glob('*.pak')):
         files[f'locales/{locale.name}'] = locale
     if missing := REQUIRED - files.keys():
@@ -85,10 +103,11 @@ def prepare(directory):
     target = STORE / filename
     with tempfile.TemporaryDirectory(dir=STORE) as temp:
         staged = Path(temp) / filename
+        dock_help = '右键菜单点「扩展坞…」，可以试听和启用互动语音、安装飞行和其他扩展。\r\n' if has_voice_dock(version) else ''
         with zipfile.ZipFile(staged, 'w', zipfile.ZIP_DEFLATED, compresslevel=6) as zip:
             for name, file in sorted(files.items()):
                 zip.write(file, f'PIGDING/{name}')
-            zip.writestr('PIGDING/启动说明.txt', f'恶魔叮 PIGDING {version}\r\n\r\n解压完整文件夹，双击 PIGDING.exe。\r\n不要只移动 EXE；请保留 resources、locales 和 DLL。\r\n右键宠物或托盘图标打开菜单。Ctrl + Alt + D 显示或隐藏桌宠。\r\n更新时请先退出旧程序，再解压新版到新的文件夹。\r\n'.encode('utf-8-sig'))
+            zip.writestr('PIGDING/启动说明.txt', f'恶魔叮 PIGDING {version}\r\n\r\n解压完整文件夹，双击 PIGDING.exe。\r\n不要只移动 EXE；请保留 resources、locales 和 DLL。\r\n右键宠物或托盘图标打开菜单。Ctrl + Alt + D 显示或隐藏桌宠。\r\n{dock_help}更新时请先退出旧程序，再解压新版到新的文件夹。\r\n'.encode('utf-8-sig'))
         if target.exists() and sha(staged) != sha(target):
             # File dates alone may change the ZIP hash. Compare entry hashes
             # without replacing an archive that might already have been shared.
@@ -208,8 +227,20 @@ def render(data, url, out, *, mirror_url=None, domestic_url=None):
     fields.update(CLOUD_HIDDEN='' if shares else ' hidden',
                   DOWNLOAD_TOP='国内线路下载' if domestic_url else '下载 Windows 版',
                   DOWNLOAD_BOTTOM='国内线路下载' if domestic_url else '下载便携包')
+    version = data['version']
+    if not VERSION.fullmatch(version):
+        raise ValueError('发布版本号无效。')
+    dock = has_voice_dock(version)
+    notes = WEB / 'updates' / f'{version}.html'
+    markup = {
+        'CLOUD_LINKS': cloud_links,
+        'UPDATE_NAV': '<a href="#updates">版本更新</a>' if notes.is_file() else '',
+        'UPDATE_SECTION': notes.read_text(encoding='utf-8') if notes.is_file() else '',
+        'DOCK_NAV': '<a href="#extension-dock">扩展坞</a>' if dock else '',
+        'DOCK_SECTION': (WEB / 'extension-dock.html').read_text(encoding='utf-8') if dock else '',
+    }
     html = re.sub(r'\{\{([A-Z0-9_]+)\}\}',
-                  lambda m: cloud_links if m[1] == 'CLOUD_LINKS' else escape(str(fields[m[1]]), quote=True),
+                  lambda m: markup[m[1]] if m[1] in markup else escape(str(fields[m[1]]), quote=True),
                   (WEB/'index.html').read_text(encoding='utf-8'))
     (out/'index.html').write_text(html, encoding='utf-8')
     for name in ('style.css','preview.js','_headers','404.html'):

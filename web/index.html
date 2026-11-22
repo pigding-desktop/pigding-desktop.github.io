@@ -14,7 +14,7 @@
   <a class="skip" href="#main">跳到正文</a>
   <header class="header wrap">
     <a href="#top" class="brand" aria-label="PIGDING 首页"><img src="assets/icon.png" width="34" height="34" alt="">PIGDING<span>.</span></a>
-    <nav aria-label="站内导航"><a href="#features">桌宠功能</a><a href="#guide">使用说明</a><a class="nav-download" href="#download">下载 <span aria-hidden="true">↗</span></a></nav>
+    <nav aria-label="站内导航"><a href="#features">桌宠功能</a>{{UPDATE_NAV}}{{DOCK_NAV}}<a href="#guide">使用说明</a><a class="nav-download" href="#download">下载 <span aria-hidden="true">↗</span></a></nav>
   </header>
   <main id="main" class="wrap">
     <section class="hero" aria-labelledby="intro-title">
@@ -44,17 +44,19 @@
         <article class="card"><span class="symbol"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-1.9L12 3ZM19 16v5m-2.5-2.5h5"/></svg></span><h3>两款皮肤随时换</h3><p>普通色、粉色异色都在同一个程序里。右键菜单还能调大小、帧率、置顶、随机走动和表情开关。</p></article>
       </div>
     </section>
+{{UPDATE_SECTION}}
     <section id="guide" class="section" aria-labelledby="guide-title">
-      <div class="section-heading"><p class="eyebrow"><span>02</span> / QUICK START</p><h2 id="guide-title">三步，让它住进桌面</h2></div>
+      <div class="section-heading"><p class="eyebrow">QUICK START</p><h2 id="guide-title">三步，让它住进桌面</h2></div>
       <ol class="steps">
-        <li><span>01</span><div><h3>下载便携包</h3><p>下载 Windows x64 的 ZIP 文件。</p></div></li>
-        <li><span>02</span><div><h3>解压整个文件夹</h3><p>保留程序旁的 <code>resources</code>、<code>locales</code> 和 DLL 文件。</p></div></li>
-        <li><span>03</span><div><h3>双击 <code>PIGDING.exe</code></h3><p>启动后，右键宠物或托盘里的图标打开设置。</p></div></li>
+        <li><span>01</span><div><h3>下载便携包</h3><p>点击页面上的下载按钮，保存 Windows x64 的 ZIP 文件。</p></div></li>
+        <li><span>02</span><div><h3>解压整个文件夹</h3><p>右键 ZIP 文件，选「全部解压缩」。解压后请把程序和旁边的文件放在一起。</p></div></li>
+        <li><span>03</span><div><h3>双击 <code>PIGDING.exe</code></h3><p>打开解压出来的文件夹，双击运行。启动后右键宠物就能打开菜单。</p></div></li>
       </ol>
-      <div class="guide-notes"><div><strong>显示 / 隐藏</strong><span><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>D</kbd></span></div><div><strong>点不到宠物？</strong><span>从托盘右键取消「全部鼠标穿透」。</span></div><div><strong>更新版本</strong><span>先退出旧版，再把新版解压到新的文件夹后启动。</span></div></div>
+      <div class="guide-notes"><div><strong>显示 / 隐藏</strong><span><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>D</kbd></span></div><div><strong>点不到宠物？</strong><span>在任务栏右下角找恶魔叮图标，找不到就先点 <kbd>^</kbd>。右键图标可取消「全部鼠标穿透」。</span></div><div><strong>更新版本</strong><span>在任务栏右下角右键恶魔叮图标，选「退出 恶魔叮」。把新版解压到新文件夹再启动，原有设置会保留。</span></div></div>
     </section>
+{{DOCK_SECTION}}
     <section id="download" class="download-panel" aria-labelledby="download-title">
-      <div><p class="eyebrow"><span>03</span> / DOWNLOAD</p><h2 id="download-title">带恶魔叮回家</h2><p>当前版 {{VERSION}} <span>·</span> {{PLATFORM}} <span>·</span> {{SIZE}}</p></div>
+      <div><p class="eyebrow">DOWNLOAD</p><h2 id="download-title">带恶魔叮回家</h2><p>当前版 {{VERSION}} <span>·</span> {{PLATFORM}} <span>·</span> {{SIZE}}</p></div>
       <div class="download-actions"><a class="button" href="{{DOWNLOAD_URL}}" download="{{FILENAME}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>{{DOWNLOAD_BOTTOM}}</a></div>
       <div id="cloud-download" class="cloud-download"{{CLOUD_HIDDEN}}>
         <h3>网盘下载</h3>
